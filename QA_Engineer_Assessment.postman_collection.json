@@ -17,33 +17,50 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									" const jsonData = pm.response.json();\r",
-									" console.log(jsonData.success);\r",
-									" console.log(jsonData.message);\r",
-									"\r",
+									"const jsonData = pm.response.json();\r",
+									"console.log(jsonData.success);\r",
+									"console.log(jsonData.message);\r",
 									"pm.test(\"Response status code is 200\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Check that valid  success message  is returned\", function () {\r",
+									"pm.test(\"Check that valid success message is returned\", function () {\r",
 									"    if(jsonData.success != undefined){\r",
-									"  pm.expect(jsonData.success, 'The success message returned is: ' + jsonData.success).to.eql(true);\r",
+									"        pm.expect(jsonData.success, 'The success message returned is: ' + jsonData.success).to.eql(true);\r",
 									"    }\r",
 									"    else{\r",
 									"        throw new Error('The success message is not returned as part of the response body')\r",
 									"    }\r",
-									" \r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check that the valid message is returned\", function () {\r",
 									"    if(jsonData.message != undefined){\r",
-									"  pm.expect(jsonData.message, 'The message returned is: ' + jsonData.message).to.eql(\"Authentication Successful\");\r",
+									"        pm.expect(jsonData.message, 'The message returned is: ' + jsonData.message).to.eql(\"Authentication Successful\");\r",
 									"    }\r",
 									"    else{\r",
 									"        throw new Error('The message is not returned as part of the response body')\r",
 									"    }\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Check that the access_token property is present in the response body\", function () {\r",
+									"    pm.expect(jsonData.data).to.have.property('access_token');\r",
+									"    if (jsonData.data.access_token != undefined){ // Fixed the property access\r",
+									"        pm.environment.set(\"BearerToken\", 'Bearer '+jsonData.data.access_token); // Fixed the property access\r",
+									"    }\r",
+									"    else{\r",
+									"        throw new Error(\"The access_token property of the response body was not returned\")\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1716,6 +1733,9 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "GET",
 						"header": [
 							{
